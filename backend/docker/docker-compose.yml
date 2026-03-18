@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: backend/docker/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend/models:/app/backend/models
+      - ../backend/logs:/app/backend/logs
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: Jupyter notebook for development
+  notebook:
+    build:
+      context: ..
+      dockerfile: backend/docker/Dockerfile.notebook
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../backend/notebooks:/app/backend/notebooks
+      - ../backend/data:/app/backend/data
+      - ../backend/models:/app/backend/models
+    environment:
+      - JUPYTER_TOKEN=devtoken
+    profiles:
+      - dev

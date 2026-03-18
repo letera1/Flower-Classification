@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """CLI tool for flower classification predictions."""
+import sys
+import json
+from pathlib import Path
+
+# Add backend to path
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT))
+
 import click
 import numpy as np
 import joblib
-from pathlib import Path
-import json
-import sys
 
 
 @click.group()
@@ -17,12 +22,14 @@ def cli():
 
 def load_model_and_preprocessor():
     """Load the trained model and preprocessor."""
-    model_path = Path('models/best_model.joblib')
-    preprocessor_path = Path('models/preprocessor.joblib')
-    metadata_path = Path('models/metadata.json')
+    models_dir = ROOT / "models" / "artifacts"
+    model_path = models_dir / 'best_model.joblib'
+    preprocessor_path = models_dir / 'preprocessor.joblib'
+    metadata_path = models_dir / 'metadata.json'
     
     if not model_path.exists():
         click.echo(click.style('Error: Model not found. Please train the model first.', fg='red'))
+        click.echo(click.style(f'  Run: python backend/scripts/train.py --sample', fg='yellow'))
         sys.exit(1)
     
     model = joblib.load(model_path)
@@ -85,7 +92,8 @@ def predict(sepal_length, sepal_width, petal_length, petal_width, verbose):
 @cli.command()
 def info():
     """Show model information."""
-    metadata_path = Path('models/metadata.json')
+    models_dir = ROOT / "models" / "artifacts"
+    metadata_path = models_dir / 'metadata.json'
     
     click.echo('')
     click.echo(click.style('=' * 50, fg='cyan'))
@@ -99,6 +107,10 @@ def info():
         for key, value in metadata.items():
             if isinstance(value, list):
                 click.echo(f'{key}: {", ".join(map(str, value))}')
+            elif isinstance(value, dict):
+                click.echo(f'{key}:')
+                for k, v in value.items():
+                    click.echo(f'    {k}: {v}')
             else:
                 click.echo(f'{key}: {value}')
     else:
