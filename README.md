@@ -1,136 +1,182 @@
-# Flower Classification - Machine Learning Project
+# Flower Classification - Production ML Pipeline
 
-A production-ready end-to-end machine learning project for flower species classification using morphological features.
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🌸 Project Overview
+A production-ready, end-to-end machine learning project for flower species classification with REST API, CLI, and modern MLOps practices.
 
-This project demonstrates a complete ML pipeline for classifying flower species (Iris dataset) with:
-- **Exploratory Data Analysis (EDA)** - Understanding data patterns and relationships
-- **Multiple ML Models** - Logistic Regression, Decision Tree, Random Forest, XGBoost
-- **Hyperparameter Tuning** - Grid search optimization
-- **Comprehensive Evaluation** - Metrics, confusion matrices, error analysis
-- **REST API Backend** - FastAPI-based prediction service
-- **CLI Tool** - Command-line interface for predictions
+## 🌟 Features
+
+- **Complete ML Pipeline**: Data loading → Preprocessing → Training → Evaluation → Deployment
+- **Multiple Models**: Logistic Regression, Decision Tree, Random Forest, XGBoost
+- **REST API**: FastAPI-based production API with Swagger documentation
+- **CLI Tool**: Command-line interface for predictions
+- **Docker Support**: Containerized deployment ready
+- **Testing**: Unit and integration tests with pytest
+- **Configuration**: YAML-based configuration management
+- **Logging**: Structured logging with file and console output
 
 ## 📁 Project Structure
 
 ```
 Flower-Classification/
 ├── backend/
-│   └── app.py              # FastAPI application
-├── notebooks/
-│   └── 01_eda_flower_classification.ipynb
-├── src/
-│   ├── data/
-│   │   ├── preprocessor.py      # Data loading & preprocessing
-│   │   └── feature_engineering.py
-│   ├── models/
-│   │   └── trainer.py           # Model training & tuning
-│   ├── evaluation/
-│   │   └── evaluator.py         # Metrics & visualization
-│   └── utils/
-│       └── helpers.py           # Utility functions
-├── cli/
-│   └── predict.py          # CLI tool for predictions
-├── data/
-│   ├── raw/                # Raw data files
-│   └── processed/          # Processed data files
-├── models/                 # Trained model artifacts
-├── train_pipeline.py       # Main training script
-├── requirements.txt
-└── README.md
+│   ├── app/                    # FastAPI application
+│   │   ├── api/                # API routes
+│   │   ├── core/               # Core configuration
+│   │   ├── models/             # Pydantic models
+│   │   ├── schemas/            # Request/response schemas
+│   │   ├── services/           # Business logic
+│   │   └── utils/              # Utility functions
+│   ├── src/                    # ML source code
+│   │   ├── data/               # Data loading & preprocessing
+│   │   ├── features/           # Feature engineering
+│   │   ├── models/             # Model training
+│   │   └── evaluation/         # Model evaluation
+│   ├── scripts/                # CLI and training scripts
+│   ├── tests/                  # Unit & integration tests
+│   ├── notebooks/              # Jupyter notebooks
+│   ├── data/                   # Data storage
+│   ├── models/artifacts/       # Trained models
+│   ├── configs/                # Configuration files
+│   ├── docker/                 # Docker files
+│   └── logs/                   # Application logs
+├── pyproject.toml              # Project configuration
+├── requirements.txt            # Python dependencies
+├── Makefile                    # Common commands
+└── README.md                   # This file
 ```
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+- Python 3.9+
+- pip or poetry
+
 ### Installation
 
 ```bash
+# Clone repository
+git clone https://github.com/yourusername/flower-classification.git
+cd flower-classification
+
 # Create virtual environment
 python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
+source venv/bin/activate  # Linux/Mac
+# or
+venv\Scripts\activate     # Windows
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Or install as package (development mode)
+pip install -e ".[dev]"
 ```
 
 ### Training the Model
 
 ```bash
-# Train with sample Iris data
-python train_pipeline.py --sample
+# Using Makefile
+make train
 
-# Train with custom dataset
-python train_pipeline.py --data path/to/data.csv
-```
+# Or directly
+python backend/scripts/train.py --sample
 
-### Using the CLI
-
-```bash
-# Single prediction
-python -m cli.predict predict --sepal-length 5.1 --sepal-width 3.5 --petal-length 1.4 --petal-width 0.2 -v
-
-# Batch prediction from CSV
-python -m cli.predict predict-file --file input.csv
-
-# Model information
-python -m cli.predict info
-
-# Demo prediction
-python -m cli.predict demo
+# With custom data
+python backend/scripts/train.py --data path/to/data.csv
 ```
 
 ### Running the API
 
 ```bash
-# Start the FastAPI server
-python -m uvicorn backend.app:app --reload --host 0.0.0.0 --port 8000
+# Using Makefile
+make api
 
 # Or directly
-cd backend && python app.py
+python -m uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-API endpoints:
-- `GET /` - API information
-- `GET /health` - Health check
-- `GET /docs` - Interactive API documentation (Swagger UI)
-- `POST /predict` - Single prediction
-- `POST /predict/batch` - Batch predictions
-- `GET /classes` - List available classes
+Visit `http://localhost:8000/docs` for interactive API documentation.
 
-### API Usage Example
+### Using the CLI
 
 ```bash
 # Single prediction
-curl -X POST "http://localhost:8000/predict" \
-  -H "Content-Type: application/json" \
-  -d '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
+python backend/scripts/cli.py predict --sepal-length 5.1 --sepal-width 3.5 --petal-length 1.4 --petal-width 0.2 -v
 
-# Batch prediction
-curl -X POST "http://localhost:8000/predict/batch" \
-  -H "Content-Type: application/json" \
-  -d '[{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}]'
+# Demo prediction
+python backend/scripts/cli.py demo
+
+# Model info
+python backend/scripts/cli.py info
 ```
 
-## 📊 Dataset
+## 📊 API Endpoints
 
-This project uses the **Iris Flower Dataset**:
-- **Samples**: 150 flowers (50 per species)
-- **Features**: 
-  - Sepal length (cm)
-  - Sepal width (cm)
-  - Petal length (cm)
-  - Petal width (cm)
-- **Classes**: setosa, versicolor, virginica
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | API information |
+| GET | `/health` | Health check |
+| GET | `/docs` | Swagger UI documentation |
+| POST | `/api/v1/predict` | Single prediction |
+| POST | `/api/v1/predict/batch` | Batch predictions |
+| GET | `/api/v1/classes` | List available classes |
+| GET | `/api/v1/model/info` | Model information |
 
-### Using Custom Data
+### Example API Request
 
-For custom flower datasets, create a CSV with columns:
+```bash
+curl -X POST "http://localhost:8000/api/v1/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sepal_length": 5.1,
+    "sepal_width": 3.5,
+    "petal_length": 1.4,
+    "petal_width": 0.2
+  }'
 ```
-sepal_length,sepal_width,petal_length,petal_width,species
-5.1,3.5,1.4,0.2,0
-...
+
+Response:
+```json
+{
+  "species": "setosa",
+  "species_id": 0,
+  "confidence": 0.98,
+  "probabilities": {
+    "setosa": 0.98,
+    "versicolor": 0.01,
+    "virginica": 0.01
+  },
+  "timestamp": "2024-01-01T00:00:00"
+}
+```
+
+## 🐳 Docker Deployment
+
+```bash
+# Build Docker image
+make docker-build
+
+# Run container
+make docker-run
+
+# Or with docker-compose (includes Jupyter)
+make docker-compose-up
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+make test
+
+# Run with coverage
+make test-cov
+
+# Run specific test file
+pytest backend/tests/unit/test_preprocessor.py -v
 ```
 
 ## 📈 Model Performance
@@ -142,50 +188,59 @@ sepal_length,sepal_width,petal_length,petal_width,species
 | Random Forest | ~0.98 | ~0.98 | ~0.98 | ~0.98 |
 | XGBoost | ~0.98 | ~0.98 | ~0.98 | ~0.98 |
 
-*Actual performance may vary based on train/test split*
+## 📝 Configuration
 
-## 🔍 Key Features
+Edit `backend/configs/config.yaml` to customize:
 
-### Data Processing
-- Automated data loading and cleaning
-- Feature scaling with StandardScaler
-- Label encoding for target variable
-- Train/test split with stratification
+- Data paths and split ratios
+- Model hyperparameters
+- API settings
+- Logging configuration
 
-### Model Training
-- 4 classification algorithms
-- Grid search hyperparameter tuning
-- Cross-validation support
-- Model persistence with joblib
+## 🔧 Development
 
-### Evaluation
-- Accuracy, Precision, Recall, F1-Score
-- Confusion matrix visualization
-- Misclassification analysis
-- ROC curves for multi-class
+```bash
+# Install development dependencies
+make dev
 
-## 🛠️ Technologies
+# Format code
+make format
 
-- **Python 3.9+**
-- **scikit-learn** - Machine learning
-- **XGBoost** - Gradient boosting
-- **FastAPI** - REST API
-- **pandas, numpy** - Data processing
-- **matplotlib, seaborn** - Visualization
-- **click** - CLI framework
+# Run linters
+make lint
 
-## 📝 License
+# Run all checks
+make check
+```
 
-MIT License - See LICENSE file for details.
+## 📦 Using Your Own Dataset
+
+Create a CSV file with columns:
+```csv
+sepal_length,sepal_width,petal_length,petal_width,species
+5.1,3.5,1.4,0.2,0
+...
+```
+
+Train with:
+```bash
+python backend/scripts/train.py --data path/to/your/data.csv
+```
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📧 Contact
+## 📄 License
 
-For questions or issues, please open an issue on GitHub.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Dataset: [Iris Flower Dataset](https://archive.ics.uci.edu/ml/datasets/iris)
+- Framework: [FastAPI](https://fastapi.tiangolo.com/)
+- ML Library: [scikit-learn](https://scikit-learn.org/)
